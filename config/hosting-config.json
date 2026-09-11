@@ -1,0 +1,12 @@
+{
+  "default_tariff": 3.3,
+  "default_uptime": 99,
+  "asics": [
+    { "name": "Antminer S21 Pro (3500 W)", "power_w": 3500 },
+    { "name": "Antminer T21 (3610 W)", "power_w": 3610 },
+    { "name": "Whatsminer M60S (3120 W)", "power_w": 3120 },
+    { "name": "Whatsminer M50 (3306 W)", "power_w": 3306 },
+    { "name": "Antminer S19 Pro (3250 W)", "power_w": 3250 },
+    { "name": "Своя модель (Ручной ввод)", "power_w": 0 }
+  ]
+}
