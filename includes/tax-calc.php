@@ -2,10 +2,10 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 function mc_tax_calc_shortcode( $atts ) {
-    $args = shortcode_atts( array(
-        'status' => 'select', 
-    ), $atts );
+    wp_enqueue_style( 'mc-style' );
+    wp_enqueue_script( 'mc-script' );
 
+    $args = shortcode_atts( array( 'status' => 'select' ), $atts );
     $config_path = dirname( __DIR__ ) . '/config/tax-rules-2026.json';
     $config_data = file_exists( $config_path ) ? file_get_contents( $config_path ) : '{}';
 
@@ -18,18 +18,18 @@ function mc_tax_calc_shortcode( $atts ) {
             <div class="mc-field">
                 <label>Ваш налоговый статус</label>
                 <select class="mc-tax-status">
-                    <option value="fiz">Физическое лицо</option>
-                    <option value="ip">Индивидуальный предприниматель (ИП)</option>
+                    <option value="fiz">Физическое лицо (НДФЛ)</option>
+                    <option value="ip">Индивидуальный предприниматель (НДФЛ для ИП)</option>
                     <option value="org">Юридическое лицо (Организация ОСНО)</option>
                 </select>
             </div>
         <?php else : ?>
             <input type="hidden" class="mc-tax-status" value="<?php echo esc_attr( $args['status'] ); ?>">
-            <p style="font-size:13px; color:#8c8c8c; margin-bottom:15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 8px;">
-                Методика расчета: <strong style="color:#007aff;">
+            <p class="mc-status-meta">
+                Методика расчета: <strong>
                     <?php 
-                        if($args['status'] == 'fiz') echo 'Физлицо';
-                        if($args['status'] == 'ip') echo 'ИП (УСН)';
+                        if($args['status'] == 'fiz') echo 'Физическое лицо (НДФЛ)';
+                        if($args['status'] == 'ip') echo 'ИП (НДФЛ)';
                         if($args['status'] == 'org') echo 'Юрлицо (ОСНО)';
                     ?>
                 </strong>
@@ -46,9 +46,9 @@ function mc_tax_calc_shortcode( $atts ) {
             <input type="number" class="mc-tax-rate-inc" value="6000000" min="0">
         </div>
 
-        <div class="mc-field mc-checkbox-wrapper" style="display: flex; align-items: center; margin: 15px 0;">
-            <input type="checkbox" class="mc-tax-is-sold" checked style="width: auto; margin-right: 8px;">
-            <label style="margin: 0; font-size: 14px; color:#111; cursor:pointer;">Криптовалюта уже реализована (продана)</label>
+        <div class="mc-field mc-checkbox-wrapper">
+            <input type="checkbox" class="mc-tax-is-sold" checked>
+            <label>Криптовалюта уже реализована (продана)</label>
         </div>
 
         <div class="mc-field mc-tax-sell-row">
@@ -68,19 +68,18 @@ function mc_tax_calc_shortcode( $atts ) {
 
         <div class="mc-outputs">
             <p class="mc-price-row">Итого налог: <span class="mc-tax-total">0</span> ₽</p>
-            
             <p class="mc-info-row">Доход при получении: <span><span class="mc-tax-inc-val">0</span> ₽</span></p>
             <p class="mc-info-row">Этап 1: Налог на добычу: <span><span class="mc-tax-stage1">0</span> ₽</span></p>
             <p class="mc-info-row">Этап 2: Налог при реализации: <span><span class="mc-tax-stage2">0</span> ₽</span></p>
             <p class="mc-info-row">Эффективная ставка: <span><span class="mc-tax-eff-rate">0</span>%</span></p>
             
-            <details class="mc-tax-methodology" style="margin-top: 15px; font-size: 13px;">
-                <summary style="cursor: pointer; color: #007aff; font-weight: 500;">Посмотреть обоснование и статьи НК РФ</summary>
-                <div class="mc-tax-legal-notes" style="margin-top: 10px; background: #f8fafc; padding: 10px; border-radius: 6px; color: #4a5568; line-height: 1.4;"></div>
+            <details class="mc-tax-methodology">
+                <summary>Посмотреть обоснование и статьи НК РФ</summary>
+                <div class="mc-tax-legal-notes"></div>
             </details>
 
-            <small class="mc-note" style="color: #e53e3e; font-weight: 600; text-align: center; border-top: 1px dashed #fed7d7; padding-top: 10px; margin-top: 15px;">
-                Точную цену считает менеджер • Расчет не является налоговой консультацией.
+            <small class="mc-note-disclaimer">
+                Расчет ориентировочный и не является налоговой консультацией.
             </small>
         </div>
 

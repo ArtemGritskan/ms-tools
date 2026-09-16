@@ -1,23 +1,20 @@
 <?php
 /*
 Plugin Name: Mining Cluster Tools
-Description: Инструменты размещения для Mining Cluster.
+Description: Инструменты размещения и налогового расчета для Mining Cluster.
 Version: 0.1.0
 Author: Артём
 */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-// Безопасное подключение стилей и скриптов
-function mc_tools_load_assets() {
-    wp_enqueue_style( 'mc-style', plugins_url( 'assets/mc-style.css', __FILE__ ), array(), '0.1.0' );
-    wp_enqueue_script( 'mc-script', plugins_url( 'assets/mc-script.js', __FILE__ ), array('jquery'), '0.1.0', true );
+// Просто регистрируем ассеты, но не подключаем их глобально
+function mc_tools_register_assets() {
+    wp_register_style( 'mc-style', plugin_dir_url( __FILE__ ) . 'assets/mc-style.css', array(), '0.1.0' );
+    wp_register_script( 'mc-script', plugin_dir_url( __FILE__ ) . 'assets/mc-script.js', array('jquery'), '0.1.0', true );
 }
-add_action( 'wp_enqueue_scripts', 'mc_tools_load_assets' );
+add_action( 'wp_enqueue_scripts', 'mc_tools_register_assets' );
 
-
-// Прямое подключение калькулятора размещения
+// Подключаем файлы шорткодов
 require_once plugin_dir_path( __FILE__ ) . 'includes/hosting-calc.php';
-
-// Жесткое подключение налогового калькулятора майнера
 require_once plugin_dir_path( __FILE__ ) . 'includes/tax-calc.php';
