@@ -1,6 +1,6 @@
 jQuery(document).ready(function($) {
     
-    // === 1. КАЛЬКУЛЯТОР СТОИМОСТИ РАЗМЕЩЕНИЯ ===
+    // 1. КАЛЬКУЛЯТОР СТОИМОСТИ РАЗМЕЩЕНИЯ 
     $('.mc-hosting-calc-container').each(function() {
         const $box = $(this);
         const $model = $box.find('.mc-asic-model');
@@ -37,7 +37,7 @@ jQuery(document).ready(function($) {
         calculateHosting();
     });
 
-    // === 2. НАЛОГОВЫЙ КАЛЬКУЛЯТОР МАЙНЕРА ===
+    // 2. НАЛОГОВЫЙ КАЛЬКУЛЯТОР МАЙНЕРА
     $('.mc-tax-calc-container').each(function() {
         const $box = $(this);
         const rules = JSON.parse($box.attr('data-rules') || '{}');
@@ -61,12 +61,12 @@ jQuery(document).ready(function($) {
             let taxStage1 = 0;
             let noteStage1 = "";
 
-            // Новая логика: Физлица и ИП уменьшают базу на расходы, считаются по шкале 2025/2026 года
+            //
             if (status === 'fiz' || status === 'ip') {
                 const config = status === 'fiz' ? rules.fiz : rules.ip;
                 const statusName = status === 'fiz' ? 'Физлицо' : 'ИП (НДФЛ)';
                 
-                // База = Доход - Расходы по правилам страниц сайта
+                
                 const taxableBase1 = Math.max(0, grossIncomeStage1 - totalExpenses);
 
                 if (taxableBase1 <= config.threshold) {

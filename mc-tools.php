@@ -2,13 +2,13 @@
 /*
 Plugin Name: Mining Cluster Tools
 Description: Инструменты размещения и налогового расчета для Mining Cluster.
-Version: 0.1.0
+Version: 0.2.0
 Author: Артём
 */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-// Просто регистрируем ассеты, но не подключаем их глобально
+// без глоб. подключения 
 function mc_tools_register_assets() {
     wp_register_style( 'mc-style', plugin_dir_url( __FILE__ ) . 'assets/mc-style.css', array(), '0.1.0' );
     wp_register_script( 'mc-script', plugin_dir_url( __FILE__ ) . 'assets/mc-script.js', array('jquery'), '0.1.0', true );

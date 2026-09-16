@@ -2,7 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 function mc_hosting_calc_shortcode() {
-    // Подгружаем стили и скрипты только при вызове шорткода
+    // только при вызове шорткода 
     wp_enqueue_style( 'mc-style' );
     wp_enqueue_script( 'mc-script' );
 
