@@ -6,6 +6,7 @@ function mc_tax_calc_shortcode( $atts ) {
     wp_enqueue_script( 'mc-script' );
 
     $args = shortcode_atts( array( 'status' => 'select' ), $atts );
+    
     $config_path = dirname( __DIR__ ) . '/config/tax-rules-2026.json';
     $config_data = file_exists( $config_path ) ? file_get_contents( $config_path ) : '{}';
 
@@ -38,7 +39,7 @@ function mc_tax_calc_shortcode( $atts ) {
 
         <div class="mc-field">
             <label>Намайнено цифровой валюты за период (BTC)</label>
-            <input type="number" step="0.00000001" class="mc-tax-btc" value="0.10000000" min="0">
+            <input type="number" step="0.00000001" class="mc-tax-btc" value="1.00000000" min="0">
         </div>
 
         <div class="mc-field">
@@ -46,9 +47,12 @@ function mc_tax_calc_shortcode( $atts ) {
             <input type="number" class="mc-tax-rate-inc" value="6000000" min="0">
         </div>
 
+        <!-- Убрали id и завели input внутрь label, чтобы клик работал автономно (Пункт 1) -->
         <div class="mc-field mc-checkbox-wrapper">
-            <input type="checkbox" class="mc-tax-is-sold" checked>
-            <label>Криптовалюта уже реализована (продана)</label>
+            <label style="display: flex; align-items: center; cursor: pointer;">
+                <input type="checkbox" class="mc-tax-is-sold" checked style="width: auto; margin-right: 8px;">
+                Криптовалюта уже реализована (продана)
+            </label>
         </div>
 
         <div class="mc-field mc-tax-sell-row">
@@ -58,19 +62,19 @@ function mc_tax_calc_shortcode( $atts ) {
 
         <div class="mc-field">
             <label>Расходы на электроэнергию (₽)</label>
-            <input type="number" class="mc-tax-power-cost" value="150000" min="0">
+            <input type="number" class="mc-tax-power-cost" value="1000000" min="0">
         </div>
 
         <div class="mc-field">
             <label>Прочие расходы: размещение, амортизация (₽)</label>
-            <input type="number" class="mc-tax-other-cost" value="50000" min="0">
+            <input type="number" class="mc-tax-other-cost" value="60000" min="0">
         </div>
 
         <div class="mc-outputs">
             <p class="mc-price-row">Итого налог: <span class="mc-tax-total">0</span> ₽</p>
-            <p class="mc-info-row">Доход при получении: <span><span class="mc-tax-inc-val">0</span> ₽</span></p>
-            <p class="mc-info-row">Этап 1: Налог на добычу: <span><span class="mc-tax-stage1">0</span> ₽</span></p>
-            <p class="mc-info-row">Этап 2: Налог при реализации: <span><span class="mc-tax-stage2">0</span> ₽</span></p>
+            <p class="mc-info-row">Доход при получении: <span><span class="mc-tax-inc-val">0</span></span></p>
+            <p class="mc-info-row">Этап 1: Налог на добычу: <span><span class="mc-tax-stage1">0</span></span></p>
+            <p class="mc-info-row">Этап 2: Налог при реализации: <span><span class="mc-tax-stage2">0</span></span></p>
             <p class="mc-info-row">Эффективная ставка: <span><span class="mc-tax-eff-rate">0</span>%</span></p>
             
             <details class="mc-tax-methodology">
