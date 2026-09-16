@@ -11,7 +11,7 @@ jQuery(document).ready(function($) {
         const $uptime = $box.find('.mc-uptime');
 
         function calculateHosting() {
-            let powerW = parseFloat($model.val());
+            let powerW = parseFloat($model.val());  
             if (powerW === 0) {
                 $customBlock.show();
                 powerW = parseFloat($customInput.val()) || 0;
