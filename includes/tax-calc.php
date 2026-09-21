@@ -2,10 +2,12 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 function mc_tax_calc_shortcode( $atts ) {
+    
     wp_enqueue_style( 'mc-style' );
     wp_enqueue_script( 'mc-script' );
 
     $args = shortcode_atts( array( 'status' => 'select' ), $atts );
+    
     
     $config_path = dirname( __DIR__ ) . '/config/tax-rules-2026.json';
     $config_data = file_exists( $config_path ) ? file_get_contents( $config_path ) : '{}';
@@ -13,7 +15,7 @@ function mc_tax_calc_shortcode( $atts ) {
     ob_start();
     ?>
     <div class="mc-calc-box mc-tax-calc-container">
-        <!-- Безопасное хранение конфигурации, защищенное от взлома разметки кавычками -->
+        
         <input type="hidden" class="mc-tax-rules-json" value="<?php echo esc_attr($config_data); ?>">
         
         <h3>Налоговый калькулятор майнера</h3>
@@ -32,9 +34,13 @@ function mc_tax_calc_shortcode( $atts ) {
             <p class="mc-status-meta">
                 Методика расчета: <strong>
                     <?php 
-                        if($args['status'] == 'fiz') echo 'Физическое лицо (НДФЛ)';
-                        if($args['status'] == 'ip') echo 'ИП (НДФЛ)';
-                        if($args['status'] == 'org') echo 'Юрлицо (ОСНО)';
+                        if ( $args['status'] === 'fiz' ) {
+                            echo 'Физическое лицо (НДФЛ)';
+                        } elseif ( $args['status'] === 'ip' ) {
+                            echo 'ИП (НДФЛ)';
+                        } elseif ( $args['status'] === 'org' ) {
+                            echo 'Юрлицо (ОСНО)';
+                        }
                     ?>
                 </strong>
             </p>
@@ -50,6 +56,7 @@ function mc_tax_calc_shortcode( $atts ) {
             <input type="number" class="mc-tax-rate-inc" value="6000000" min="0">
         </div>
 
+        <!-- Контейнер чекбокса без ломающих ID (Пункт 1) -->
         <div class="mc-field mc-checkbox-wrapper">
             <label style="display: flex; align-items: center; cursor: pointer;">
                 <input type="checkbox" class="mc-tax-is-sold" checked style="width: auto; margin-right: 8px;">
