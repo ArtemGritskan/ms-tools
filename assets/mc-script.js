@@ -1,7 +1,7 @@
-jQuery(document).ready(function() {
+jQuery(document).ready(function($) {
     
     //1. КАЛЬКУЛЯТОР СТОИМОСТИ РАЗМЕЩЕНИЯ
-    jQuery('.mc-hosting-calc-container').each(function() {
+    $('.mc-hosting-calc-container').each(function() {
         const box = jQuery(this);
         const model = box.find('.mc-asic-model');
         const customBlock = box.find('.mc-custom-power-block');
@@ -37,21 +37,30 @@ jQuery(document).ready(function() {
         calculateHosting();
     });
 
-    // 2. НАЛОГОВЫЙ КАЛЬКУЛЯТОР МАЙНЕРА
-    jQuery('.mc-tax-calc-container').each(function() {
+    //  2. НАЛОГОВЫЙ КАЛЬКУЛЯТОР МАЙНЕРА
+    $('.mc-tax-calc-container').each(function() {
         const box = jQuery(this);
+        
+        let rules = {};
+        try {
+            // конфиг из php
+            rules = JSON.parse(box.find('.mc-tax-rules-json').val() || '{}');
+        } catch(e) {
+            console.error("Ошибка парсинга JSON-конфигурации шкал:", e);
+            rules = {};
+        }
 
-        // 5 ступ шкала 
-        const scale = [
-            { limit: 2400000, rate: 0.13 },
-            { limit: 5000000, rate: 0.15 },
-            { limit: 20000000, rate: 0.18 },
-            { limit: 50000000, rate: 0.20 },
-            { limit: null, rate: 0.22 }
-        ];
+        // из конфига!
+        const miningScale = rules.mining_scale || [];
+        const saleScale = rules.sale_scale || [];
 
-        function calculateProgressiveTax(taxableBase) {
-            if (taxableBase <= 0) return 0;
+        const fizRules = rules.fiz || { link: "/doc/fns-fizlitsa/", source_stage1: "", source_stage2: "" };
+        const ipRules = rules.ip || { link: "/doc/fns-ip/", source_stage1: "", source_stage2: "" };
+        const orgRules = rules.org || { rate_stage1: 0.25, rate_stage2: 0.25, source_stage1: "", source_stage2: "" };
+
+        //универсальная функция 
+        function calculateProgressiveTax(taxableBase, scale) {
+            if (taxableBase <= 0 || !scale || scale.length === 0) return 0;
             let accumulatedTax = 0;
             let previousLimit = 0;
 
@@ -92,21 +101,22 @@ jQuery(document).ready(function() {
             let taxStage1 = 0;
             let noteStage1 = "";
 
+            // Расчет1 
             if (status === 'fiz' || status === 'ip') {
+                const config = status === 'fiz' ? fizRules : ipRules;
                 const statusName = status === 'fiz' ? 'Физлицо' : 'ИП (НДФЛ)';
-                const linkUrl = status === 'fiz' ? '/doc/fns-fizlitsa/' : '/doc/fns-ip/';
                 const taxableBase1 = Math.max(0, grossIncomeStage1 - totalExpenses);
 
-                taxStage1 = calculateProgressiveTax(taxableBase1);
-                
-                noteStage1 = '<b>Этап 1 (' + statusName + '):</b> Рассчитан с чистой базы по 5-ступенчатой прогрессивной шкале сайта.<br><i>Официальная методика: <a href="' + linkUrl + '" target="_blank">' + linkUrl + '</a>.</i>';
+                taxStage1 = calculateProgressiveTax(taxableBase1, miningScale);
+                noteStage1 = '<b>Этап 1 (' + statusName + '):</b> Рассчитан с чистой базы по 5-ступенчатой прогрессивной шкале сайта.<br><i>Официальная методика: <a href="' + config.link + '" target="_blank">' + config.link + '</a>.<br>Обоснование: ' + config.source_stage1 + '</i>';
             
             } else if (status === 'org') {
                 const taxableBase1 = Math.max(0, grossIncomeStage1 - totalExpenses);
-                taxStage1 = taxableBase1 * 0.25;
-                noteStage1 = '<b>Этап 1 (Юрлицо ОСНО):</b> Налог на прибыль организаций со стоимости добытых блоков по ставке 25%.';
+                taxStage1 = taxableBase1 * orgRules.rate_stage1;
+                noteStage1 = '<b>Этап 1 (Юрлицо ОСНО):</b> Налог на прибыль организаций со стоимости добытых блоков по ставке ' + (orgRules.rate_stage1 * 100) + '%. <br><i>Источник: ' + orgRules.source_stage1 + '</i>';
             }
 
+            // Расчет  2 
             let taxStage2 = 0;
             let noteStage2 = "<b>Этап 2:</b> Криптовалюта удерживается на балансе, налог на реализацию равен 0 ₽.";
 
@@ -117,12 +127,14 @@ jQuery(document).ready(function() {
                     const cryptoProfit = btc * priceDifferencePerBtc;
 
                     if (status === 'fiz' || status === 'ip') {
-                        const linkUrl = status === 'fiz' ? '/doc/fns-fizlitsa/' : '/doc/fns-ip/';
-                        taxStage2 = calculateProgressiveTax(cryptoProfit);
-                        noteStage2 = '<b>Этап 2:</b> Налог с положительной курсовой разницы активов по обособленной шкале ФНС.<br><i>Подробнее на: <a href="' + linkUrl + '" target="_blank">' + linkUrl + '</a>.</i>';
+                        const config = status === 'fiz' ? fizRules : ipRules;
+                        
+                        //  независимо с нуля по шкале sale_scale
+                        taxStage2 = calculateProgressiveTax(cryptoProfit, saleScale);
+                        noteStage2 = '<b>Этап 2:</b> Налог с положительной курсовой разницы активов по обособленной шкале ФНС.<br><i>Официальная методика: <a href="' + config.link + '" target="_blank">' + config.link + '</a>.<br>Обоснование: ' + config.source_stage2 + '</i>';
                     } else if (status === 'org') {
-                        taxStage2 = cryptoProfit * 0.25;
-                        noteStage2 = '<b>Этап 2 (Юрлицо):</b> Налог на прибыль 25% от реализации валюты по правилам раздельного учета ФНС.';
+                        taxStage2 = cryptoProfit * orgRules.rate_stage2;
+                        noteStage2 = '<b>Этап 2 (Юрлицо):</b> Налог на прибыль ' + (orgRules.rate_stage2 * 100) + '% от реализации валюты по правилам раздельного учета ФНС. <br><i>Источник: ' + orgRules.source_stage2 + '</i>';
                     }
                 } else {
                     noteStage2 = "<b>Этап 2:</b> Монеты реализованы без прибыли. Налоговая база реализации равна 0 ₽.";
