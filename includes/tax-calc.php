@@ -12,7 +12,10 @@ function mc_tax_calc_shortcode( $atts ) {
 
     ob_start();
     ?>
-    <div class="mc-calc-box mc-tax-calc-container" data-rules='<?php echo esc_attr($config_data); ?>'>
+    <div class="mc-calc-box mc-tax-calc-container">
+        <!-- Безопасное хранение конфигурации, защищенное от взлома разметки кавычками -->
+        <input type="hidden" class="mc-tax-rules-json" value="<?php echo esc_attr($config_data); ?>">
+        
         <h3>Налоговый калькулятор майнера</h3>
         
         <?php if ( $args['status'] === 'select' ) : ?>
