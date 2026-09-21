@@ -47,7 +47,6 @@ function mc_tax_calc_shortcode( $atts ) {
             <input type="number" class="mc-tax-rate-inc" value="6000000" min="0">
         </div>
 
-        <!-- Убрали id и завели input внутрь label, чтобы клик работал автономно (Пункт 1) -->
         <div class="mc-field mc-checkbox-wrapper">
             <label style="display: flex; align-items: center; cursor: pointer;">
                 <input type="checkbox" class="mc-tax-is-sold" checked style="width: auto; margin-right: 8px;">

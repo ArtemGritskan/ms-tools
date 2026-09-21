@@ -2,18 +2,17 @@
 /*
 Plugin Name: Mining Cluster Tools
 Description: Инструменты размещения и налогового расчета для Mining Cluster.
-Version: 0.2.1
-Author: Артём
+Version: 0.3.0
+Author: Артём Грицкан
 */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-// для сброса кэша
+//ассеты с динамической версией для принудительного сброса кэша
 function mc_tools_register_assets() {
     $css_path = plugin_dir_path( __FILE__ ) . 'assets/mc-style.css';
     $js_path = plugin_dir_path( __FILE__ ) . 'assets/mc-script.js';
     
-    // +-дефолт 
     $css_ver = file_exists( $css_path ) ? filemtime( $css_path ) : '0.1.1';
     $js_ver = file_exists( $js_path ) ? filemtime( $js_path ) : '0.1.1';
 
@@ -22,7 +21,6 @@ function mc_tools_register_assets() {
 }
 add_action( 'wp_enqueue_scripts', 'mc_tools_register_assets' );
 
-// файлы шорткодов 
+//файлы шорткодов
 require_once plugin_dir_path( __FILE__ ) . 'includes/hosting-calc.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/tax-calc.php';
- 
