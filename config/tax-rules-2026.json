@@ -8,10 +8,7 @@
   ],
   "sale_scale": [
     { "limit": 2400000, "rate": 0.13 },
-    { "limit": 5000000, "rate": 0.15 },
-    { "limit": 20000000, "rate": 0.18 },
-    { "limit": 50000000, "rate": 0.20 },
-    { "limit": null, "rate": 0.22 }
+    { "limit": null, "rate": 0.15 }
   ],
   "fiz": {
     "link": "/doc/fns-fizlitsa/",

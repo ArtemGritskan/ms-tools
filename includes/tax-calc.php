@@ -10,7 +10,11 @@ function mc_tax_calc_shortcode( $atts ) {
     
     
     $config_path = dirname( __DIR__ ) . '/config/tax-rules-2026.json';
-    $config_data = file_exists( $config_path ) ? file_get_contents( $config_path ) : '{}';
+    $config = mc_tools_load_config( $config_path, 'tax' );
+    if ( $config === null ) return mc_tools_config_error( 'Расчёт недоступен: не удалось загрузить налоговые правила.' );
+    if ( ! in_array( $args['status'], array( 'select', 'fiz', 'ip', 'org' ), true ) ) return mc_tools_config_error( 'Расчёт недоступен: неверный налоговый статус.' );
+    $config_data = wp_json_encode( $config );
+    $prefix = wp_unique_id( 'mc-tax-' );
 
     ob_start();
     ?>
@@ -22,8 +26,8 @@ function mc_tax_calc_shortcode( $atts ) {
         
         <?php if ( $args['status'] === 'select' ) : ?>
             <div class="mc-field">
-                <label>Ваш налоговый статус</label>
-                <select class="mc-tax-status">
+                <label for="<?php echo esc_attr( $prefix . '-status' ); ?>">Ваш налоговый статус</label>
+                <select id="<?php echo esc_attr( $prefix . '-status' ); ?>" class="mc-tax-status">
                     <option value="fiz">Физическое лицо (НДФЛ)</option>
                     <option value="ip">Индивидуальный предприниматель (НДФЛ для ИП)</option>
                     <option value="org">Юридическое лицо (Организация ОСНО)</option>
@@ -47,16 +51,15 @@ function mc_tax_calc_shortcode( $atts ) {
         <?php endif; ?>
 
         <div class="mc-field">
-            <label>Намайнено цифровой валюты за период (BTC)</label>
-            <input type="number" step="0.00000001" class="mc-tax-btc" value="1.00000000" min="0">
+            <label for="<?php echo esc_attr( $prefix . '-btc' ); ?>">Намайнено цифровой валюты за период (BTC)</label>
+            <input id="<?php echo esc_attr( $prefix . '-btc' ); ?>" type="number" step="0.00000001" class="mc-tax-btc" value="1.00000000" min="0" required>
         </div>
 
         <div class="mc-field">
-            <label>Курс BTC в ₽ (на дату зачисления)</label>
-            <input type="number" class="mc-tax-rate-inc" value="6000000" min="0">
+            <label for="<?php echo esc_attr( $prefix . '-rate-inc' ); ?>">Курс BTC в ₽ (на дату зачисления)</label>
+            <input id="<?php echo esc_attr( $prefix . '-rate-inc' ); ?>" type="number" step="0.01" class="mc-tax-rate-inc" value="6000000" min="0.01" required>
         </div>
 
-        <!-- Контейнер чекбокса без ломающих ID (Пункт 1) -->
         <div class="mc-field mc-checkbox-wrapper">
             <label style="display: flex; align-items: center; cursor: pointer;">
                 <input type="checkbox" class="mc-tax-is-sold" checked style="width: auto; margin-right: 8px;">
@@ -65,26 +68,28 @@ function mc_tax_calc_shortcode( $atts ) {
         </div>
 
         <div class="mc-field mc-tax-sell-row">
-            <label>Курс продажи BTC в ₽</label>
-            <input type="number" class="mc-tax-rate-sell" value="6500000" min="0">
+            <label for="<?php echo esc_attr( $prefix . '-rate-sell' ); ?>">Курс продажи BTC в ₽</label>
+            <input id="<?php echo esc_attr( $prefix . '-rate-sell' ); ?>" type="number" step="0.01" class="mc-tax-rate-sell" value="6500000" min="0.01" required>
         </div>
 
         <div class="mc-field">
-            <label>Расходы на электроэнергию (₽)</label>
-            <input type="number" class="mc-tax-power-cost" value="1000000" min="0">
+            <label for="<?php echo esc_attr( $prefix . '-power-cost' ); ?>">Расходы на электроэнергию (₽)</label>
+            <input id="<?php echo esc_attr( $prefix . '-power-cost' ); ?>" type="number" step="0.01" class="mc-tax-power-cost" value="1000000" min="0" required>
         </div>
 
         <div class="mc-field">
-            <label>Прочие расходы: размещение, амортизация (₽)</label>
-            <input type="number" class="mc-tax-other-cost" value="60000" min="0">
+            <label for="<?php echo esc_attr( $prefix . '-other-cost' ); ?>">Прочие расходы: размещение, амортизация (₽)</label>
+            <input id="<?php echo esc_attr( $prefix . '-other-cost' ); ?>" type="number" step="0.01" class="mc-tax-other-cost" value="60000" min="0" required>
         </div>
 
+        <p class="mc-calc-error" role="alert" hidden></p>
+        <p class="mc-note-disclaimer">НДФЛ рассчитывается для резидентов РФ без других доходов и ранее использованных порогов за налоговый год.</p>
         <div class="mc-outputs">
-            <p class="mc-price-row">Итого налог: <span class="mc-tax-total">0</span> ₽</p>
-            <p class="mc-info-row">Доход при получении: <span><span class="mc-tax-inc-val">0</span></span></p>
-            <p class="mc-info-row">Этап 1: Налог на добычу: <span><span class="mc-tax-stage1">0</span></span></p>
-            <p class="mc-info-row">Этап 2: Налог при реализации: <span><span class="mc-tax-stage2">0</span></span></p>
-            <p class="mc-info-row">Эффективная ставка: <span><span class="mc-tax-eff-rate">0</span>%</span></p>
+            <p class="mc-price-row">Итого налог: <span class="mc-tax-total">—</span> ₽</p>
+            <p class="mc-info-row">Доход при получении: <span><span class="mc-tax-inc-val">—</span></span></p>
+            <p class="mc-info-row">Этап 1: Налог на добычу: <span><span class="mc-tax-stage1">—</span></span></p>
+            <p class="mc-info-row">Этап 2: Налог при реализации: <span><span class="mc-tax-stage2">—</span></span></p>
+            <p class="mc-info-row">Эффективная ставка: <span><span class="mc-tax-eff-rate">—</span>%</span></p>
             
             <details class="mc-tax-methodology">
                 <summary>Посмотреть обоснование и статьи НК РФ</summary>

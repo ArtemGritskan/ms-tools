@@ -2,7 +2,7 @@
 /*
 Plugin Name: Mining Cluster Tools
 Description: Инструменты размещения и налогового расчета для Mining Cluster.
-Version: 0.3.0
+Version: 0.3.3
 Author: Артём Грицкан
 */
 
@@ -22,5 +22,6 @@ function mc_tools_register_assets() {
 add_action( 'wp_enqueue_scripts', 'mc_tools_register_assets' );
 
 //файлы шорткодов
+require_once plugin_dir_path( __FILE__ ) . 'includes/config.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/hosting-calc.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/tax-calc.php';

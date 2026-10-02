@@ -19,6 +19,21 @@
 .mc-field {
     margin-bottom: 16px;
 }
+.mc-calc-box [hidden] {
+    display: none !important;
+}
+.mc-calc-box .mc-calc-error, .mc-calc-box .mc-field-error {
+    color: #b42318;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.mc-calc-box .mc-field-error {
+    display: block;
+    margin-top: 6px;
+}
+.mc-calc-box input[aria-invalid="true"] {
+    border-color: #b42318;
+}
 .mc-field label {
     display: block;
     margin-bottom: 6px;
